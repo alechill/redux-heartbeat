@@ -1,0 +1,235 @@
+import {expect} from 'chai'
+import * as mocha from 'mocha'
+import * as sinon from 'sinon'
+import {Action, Dispatch} from 'redux'
+import {heartbeat, HeartbeatMiddleware, TimestampedActions, HEARTBEAT_ACTION_TYPE,
+        HeartbeatAction} from '../src/index'
+
+type Handler<S> = (next: Dispatch<S>) => Dispatch<S>
+
+describe('Redux heartbeat', () => {
+
+  let clock: sinon.SinonFakeTimers
+
+  let dispatch: sinon.SinonStub
+  let getState: sinon.SinonStub
+  let hb: HeartbeatMiddleware
+  const ms = 10000
+  const next: sinon.SinonSpy = sinon.spy((action: Action) => action)
+  const stubAction: Action = { type: 'foo' }
+
+  before(() => {
+    // must freeze timers once BEFORE ALL the tests - will be reset inbetween
+    clock = sinon.useFakeTimers()
+  })
+
+  after(() => {
+    clock.restore()
+  })
+
+  // common setup teardown per sub-suite
+  const setupHeartbeat = () => {
+    dispatch = sinon.stub()
+    getState = sinon.stub()
+    hb = heartbeat(ms, dispatch)
+  }
+
+  const teardownHeartbeat = () => {
+    clock.reset()
+  }
+
+  // suite 1 - required redux middleware functionality /////////////////////////
+
+  describe('Given the middleware is created', () => {
+
+    let nextHandler: Handler<any>
+    let actionHandler: Dispatch<any>
+
+    before(() => {
+      setupHeartbeat()
+      nextHandler = hb({dispatch, getState})
+    })
+
+    after(teardownHeartbeat)
+
+    it('should be able to compose the next middleware', () => {
+      expect(nextHandler).to.be.a('function')
+      expect(nextHandler.length).to.be.equal(1)
+    })
+
+    describe('And the next middleware is composed', () => {
+
+      before(() => actionHandler = nextHandler(next))
+
+      it('should return a function to handle action', () => {
+        expect(actionHandler).to.be.a('function')
+        expect(actionHandler.length).to.be.equal(1)
+      })
+
+      describe('And an action is handled', () => {
+
+        it('should pass the action to next middleware', () => {
+          const handledAction: Action = actionHandler(stubAction)
+          expect(next.calledWith(stubAction)).to.be.true
+          expect(handledAction).to.be.equal(stubAction)
+        })
+
+      })
+
+    })
+
+  })
+
+  // suite 2 - heartbeat action ////////////////////////////////////////////////
+
+  describe('Given actions are passed through the heartbeat middleware', () => {
+
+    // need a ref to the actual action handler to test with actions
+    let actionHandler: Dispatch<any>
+
+    before(() => {
+      setupHeartbeat()
+      actionHandler = hb({dispatch, getState})(next)
+      // pass an action through middleware
+      actionHandler(stubAction)
+    })
+
+    after(teardownHeartbeat)
+
+    it('should start collating actions with timestamp', () => {
+      const collated : TimestampedActions = hb.stethescope()
+      expect(collated).to.have.length(1)
+      expect(collated[0].timestamp).to.be.a('number')
+      expect(collated[0].action).to.be.equal(stubAction)
+    })
+
+    it('should not dispatch a heartbeat action before duration has passed', () => {
+      expect(dispatch.called).to.be.false
+    })
+
+    describe('When the heartbeat duration passes', () => {
+
+      before(() => clock.tick(ms))
+
+      describe('Then the heartbeat action', () => {
+
+        it('should have been dispatched', () => {
+          expect(dispatch.calledOnce).to.be.true
+          const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+          expect(dispatchedAction.type).to.be.equal(HEARTBEAT_ACTION_TYPE)
+        })
+
+        it('should have the previously collated actions as payload', () => {
+          const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+          expect(dispatchedAction.payload).to.have.length(1)
+          expect(dispatchedAction.payload[0].timestamp).to.be.a('number')
+          expect(dispatchedAction.payload[0].action).to.be.equal(stubAction)
+        })
+
+      })
+
+      describe('And the pending collated actions', () => {
+
+        it('should have been flushed ready to collect more for next heartbeat', () => {
+          expect(hb.stethescope()).to.have.length(0)
+        })
+
+      })
+
+    })
+
+  })
+
+  // suite 3 - heartbeat lifecycle API /////////////////////////////////////////
+
+  describe('Given the heartbeat public API', () => {
+
+    describe('And the heartbeat is started and an action is passed through middleware', () => {
+
+      // need a ref to the actual action handler to test with actions
+      let actionHandler: Dispatch<any>
+
+      before(() => {
+        setupHeartbeat()
+        actionHandler = hb({dispatch, getState})(next)
+        // pass an action through middleware
+        actionHandler(stubAction)
+      })
+
+      after(teardownHeartbeat)
+
+      describe('When collated actions are inspected via `stethescope`', () => {
+
+        it('should return the collated actions without affecting or removing them', () => {
+          const collated : TimestampedActions = hb.stethescope()
+          expect(collated).to.have.length(1)
+          const collated2 : TimestampedActions = hb.stethescope()
+          expect(collated2).to.have.length(1)
+          expect(collated2).to.be.deep.equal(collated)
+        })
+
+      })
+
+      describe('When paused via `pause`', () => {
+
+        before(() => hb.pause())
+
+        describe('Then the pending collated actions', () => {
+
+          it('should not have been removed ', () => {
+            expect(hb.stethescope()).to.have.length(1)
+          })
+
+        })
+
+        describe('When the heartbeat duration passes', () => {
+
+          before(() => clock.tick(ms))
+
+          describe('Then the heartbeat action', () => {
+            it('should not have been dispatched while paused', () => {
+              expect(dispatch.called).to.be.false
+            })
+          })
+
+          describe('When restarted via `start`', () => {
+
+            before(() => {
+              dispatch.reset()
+              hb.start()
+            })
+
+            describe('And the heartbeat duration passes', () => {
+
+              before(() => clock.tick(ms))
+
+              describe('Then the heartbeat action', () => {
+
+                it('should have been dispatched', () => {
+                  expect(dispatch.calledOnce).to.be.true
+                  const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+                  expect(dispatchedAction.type).to.be.equal(HEARTBEAT_ACTION_TYPE)
+                })
+
+                it('should have the previously collated actions as payload', () => {
+                  const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+                  expect(dispatchedAction.payload).to.have.length(1)
+                  expect(dispatchedAction.payload[0].timestamp).to.be.a('number')
+                  expect(dispatchedAction.payload[0].action).to.be.equal(stubAction)
+                })
+
+              })
+
+            })
+
+          })
+
+        })
+
+      })
+
+    })
+
+  })
+
+})
