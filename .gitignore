@@ -2,7 +2,7 @@
 **/node_modules
 typings
 coverage
-dist
+dist/test
 results
 **/npm-debug.log
 tmp

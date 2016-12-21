@@ -1,0 +1,1 @@
+Redux middleware providing a heartbeat that contains log of actions occurring between each beat. Great for hooking up further tools for reporting application usage over time, or persisting replayable sessions incrementally.

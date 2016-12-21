@@ -1,8 +1,13 @@
 {
   "name": "redux-heartbeat",
-  "version": "1.0.0",
-  "description": "Redux middleware providing a heartbeat that contains log of actions occurring between each beat. Great for hooking up further tools for reporting application usage over time, or persisting replayable sessions incrementally. ",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "Redux middleware providing a heartbeat that contains log of actions occurring between each beat. Great for hooking up further tools for reporting application usage over time, or persisting replayable sessions incrementally.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alechill/redux-heartbeat.git"
+  },
+  "main": "dist/src/index.js.js",
+  "typings": "dist/src/index.d.ts",
   "scripts": {
     "pretest": "tsc --project . --module commonjs",
     "test": "mocha --compilers js:babel-core/register ./dist/test/test.js"
@@ -26,6 +31,7 @@
     "babel-register": "^6.18.0",
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
+    "pre-commit": "^1.2.2",
     "redux": "^3.6.0",
     "sinon": "^1.17.6",
     "ts-loader": "^1.2.2",
