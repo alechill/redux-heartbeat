@@ -2,7 +2,7 @@ import {expect} from 'chai'
 import * as mocha from 'mocha'
 import * as sinon from 'sinon'
 import {Action, Dispatch} from 'redux'
-import {heartbeat, HeartbeatMiddleware, TimestampedActions, HEARTBEAT_ACTION_TYPE,
+import {createHeartbeat, HeartbeatMiddleware, TimestampedActions, HEARTBEAT_ACTION_TYPE,
         HeartbeatAction} from '../src/index'
 
 type Handler<S> = (next: Dispatch<S>) => Dispatch<S>
@@ -31,7 +31,7 @@ describe('Redux heartbeat', () => {
   const setupHeartbeat = () => {
     dispatch = sinon.stub()
     getState = sinon.stub()
-    hb = heartbeat(ms, dispatch)
+    hb = createHeartbeat(ms, dispatch)
   }
 
   const teardownHeartbeat = () => {
@@ -124,6 +124,11 @@ describe('Redux heartbeat', () => {
           expect(dispatchedAction.payload).to.have.length(1)
           expect(dispatchedAction.payload[0].timestamp).to.be.a('number')
           expect(dispatchedAction.payload[0].action).to.be.equal(stubAction)
+        })
+
+        it('should have the timestamp that the heartbeat occurred at in the meta', () => {
+          const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+          expect(dispatchedAction.meta.timestamp).to.be.equal(ms)
         })
 
       })

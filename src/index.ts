@@ -6,8 +6,11 @@ export interface NonHeartbeatAction extends Action {
   [extraProp: string]: any
 }
 
-export interface TimestampedAction {
+export interface Timestamped {
   timestamp: number
+}
+
+export interface TimestampedAction extends Timestamped {
   action: NonHeartbeatAction
 }
 
@@ -16,6 +19,7 @@ export type TimestampedActions = Array<TimestampedAction>
 // The action that the heartbeat dispatches, follows FSA with the collated actions as payload
 export interface HeartbeatAction extends Action {
   payload: TimestampedActions
+  meta: Timestamped
 }
 
 export const HEARTBEAT_ACTION_TYPE = '@@redux/heartbeat'
@@ -37,7 +41,7 @@ export interface HeartbeatAPI {
 // Heartbeat actions themselves are always ignored, so no need to filter them out in a custom predicate
 export type HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction) => boolean
 
-export function heartbeat<S>(ms: number = 60000,
+export function createHeartbeat<S>(ms: number = 60000,
                              dispatch?: Dispatch<S>,
                              predicate: HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction): boolean => true,
                              autostart: boolean = true): HeartbeatMiddleware {
@@ -47,9 +51,10 @@ export function heartbeat<S>(ms: number = 60000,
     dispatcher: Dispatch<S> | undefined = dispatch
 
   const
-    stamp = (action: Action): TimestampedAction => ({ timestamp: new Date().valueOf() , action: action }),
+    now = (): number => new Date().valueOf(),
+    stamp = (action: Action): TimestampedAction => ({ timestamp: now() , action: action }),
     add = (action: Action) => ventrical.push(stamp(action)),
-    pump = (): HeartbeatAction => ({ type: HEARTBEAT_ACTION_TYPE, payload: flush() }),
+    pump = (): HeartbeatAction => ({ type: HEARTBEAT_ACTION_TYPE, payload: flush(), meta: { timestamp: now() } }),
     flush = (): TimestampedActions => ventrical.splice(0, ventrical.length),
     beat = (): void => { dispatcher && dispatcher(pump()) && flush() },
     pause = (): void => { if (interval !== undefined) clearInterval(interval) },
@@ -82,4 +87,4 @@ export function heartbeat<S>(ms: number = 60000,
   return heartbeatMiddleware as HeartbeatMiddleware
 }
 
-export default heartbeat
+export default createHeartbeat
