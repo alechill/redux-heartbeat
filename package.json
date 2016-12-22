@@ -9,6 +9,7 @@
   "main": "dist/src/index.js.js",
   "typings": "dist/src/index.d.ts",
   "scripts": {
+    "prepublish": "npm run test",
     "compile": "tsc --project . --module commonjs",
     "pretest": "npm run compile",
     "test": "mocha --compilers js:babel-core/register ./dist/test/test.js"

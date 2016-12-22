@@ -1,13 +1,13 @@
-                              ____    ____
-                             /    \  /    \
-                            |      \/      |
-                            |              |
-                             \            /
-                               \        /
-                                 \    /
-                                   \/
+                                                 ____    ____  
+                              ____    ____      /    \  /    \      ____    ____
+                             /    \  /    \    |      \/      |    /    \  /    \
+                            |      \/      |   |              |   |      \/      |
+                             \            /     \            /     \            /
+                               \        /         \        /         \        /
+                                 \    /             \    /             \    /  
+                                   \/                 \/                 \/
 
-[![Build Status](https://travis-ci.org/alechill/redux-heartbeat.svg?branch=master)](https://travis-ci.org/alechill/redux-heartbeat)
+[![Build Status](https://tra|vis-ci.org/alechill/redux-heartbeat.svg?branch=master)](https://travis-ci.org/alechill/redux-heartbeat)
 
 A middleware for Redux providing a heartbeat that contains batched log of actions occurring between each beat.
 
