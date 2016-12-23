@@ -1,6 +1,6 @@
 {
   "name": "redux-heartbeat",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Redux middleware providing a heartbeat that contains log of actions occurring between each beat. Great for hooking up further tools for reporting application usage over time, or persisting replayable sessions incrementally.",
   "repository": {
     "type": "git",
