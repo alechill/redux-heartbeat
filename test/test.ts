@@ -18,6 +18,15 @@ describe('Redux heartbeat', () => {
   const next: sinon.SinonSpy = sinon.spy((action: Action) => action)
   const stubAction: Action = { type: 'foo' }
 
+  interface ArbitraryAction {
+    type: string
+    payload: string
+  }
+  const stubActionWithExtraProps: ArbitraryAction = {
+    type: 'nic',
+    payload: 'cage'
+  }
+
   before(() => {
     // must freeze timers once BEFORE ALL the tests - will be reset inbetween
     clock = sinon.useFakeTimers()
@@ -149,10 +158,10 @@ describe('Redux heartbeat', () => {
 
   describe('Given the heartbeat public API', () => {
 
-    describe('And the heartbeat is started and an action is passed through middleware', () => {
+    // need a ref to the actual action handler to test with actions
+    let actionHandler: Dispatch<any>
 
-      // need a ref to the actual action handler to test with actions
-      let actionHandler: Dispatch<any>
+    describe('And given the heartbeat is started and an action is passed through middleware', () => {
 
       before(() => {
         setupHeartbeat()
@@ -225,8 +234,171 @@ describe('Redux heartbeat', () => {
 
               })
 
+              describe('When stopped via `stop` before next beat duration has passed', () => {
+
+                before(() => {
+                  dispatch.reset()
+                  actionHandler(stubAction)
+                  hb.stop()
+                })
+
+                describe('Then a final hearbeat action', () => {
+
+                  it('should have been dispatched', () => {
+                    expect(dispatch.calledOnce).to.be.true
+                    const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+                    expect(dispatchedAction.type).to.be.equal(HEARTBEAT_ACTION_TYPE)
+                  })
+
+                  it('should have the previously collated actions as payload', () => {
+                    const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+                    expect(dispatchedAction.payload).to.have.length(1)
+                    expect(dispatchedAction.payload[0].timestamp).to.be.a('number')
+                    expect(dispatchedAction.payload[0].action).to.be.equal(stubAction)
+                  })
+
+                })
+
+                describe('When the heartbeat duration passes again', () => {
+
+                  before(() => {
+                    dispatch.reset()
+                    clock.tick(ms)
+                  })
+
+                  it('should not dispatch any more heartbeat actions', () => {
+                    expect(dispatch.callCount).to.be.equal(0)
+                  })
+                })
+
+              })
             })
 
+          })
+
+        })
+
+      })
+
+    })
+
+    describe('And given the heartbeat is created', () => {
+
+      before(() => {
+        setupHeartbeat()
+        actionHandler = hb({dispatch, getState})(next)
+      })
+
+      after(teardownHeartbeat)
+
+      describe('When an action arbitrary properties is passed through middleware', () => {
+
+        before(() => actionHandler(stubActionWithExtraProps))
+
+        describe('And manually forced to beat via `beat`', () => {
+
+          before(() => hb.beat())
+
+          describe('Then a hearbeat action', () => {
+
+            it('should have been dispatched', () => {
+              expect(dispatch.calledOnce).to.be.true
+              const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+              expect(dispatchedAction.type).to.be.equal(HEARTBEAT_ACTION_TYPE)
+            })
+
+            it('should have the previously collated actions as payload', () => {
+              const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+              expect(dispatchedAction.payload).to.have.length(1)
+              expect(dispatchedAction.payload[0].timestamp).to.be.a('number')
+              expect(dispatchedAction.payload[0].action).to.be.equal(stubActionWithExtraProps)
+            })
+
+          })
+
+          describe('And the collated pending actions', () => {
+
+            it('should be empty', () => {
+              expect(hb.stethescope()).to.be.empty
+            })
+
+          })
+
+          describe('When more actions are passed through the middleware', () => {
+
+            before(() => actionHandler(stubAction))
+
+            describe('When the collated actions list is emptied via `flush`', () => {
+
+              before(() => hb.flush())
+              
+              describe('Then the collated actions list', () => {
+
+                it('should have been empty', () => {
+                  expect(hb.stethescope()).to.be.empty
+                })
+
+              })
+
+            })
+
+          })
+
+        })
+
+      })
+
+    })
+
+    describe('And given the heartbeat is started with a predicate', () => {
+
+      interface TestState {
+        nic: string
+      }
+
+      const stubState: TestState = {
+        nic: 'cage'
+      }
+      const stubActionSatisfiesPredicate: Action = {
+        type: 'nic'
+      }
+      const stubActionFailsPredicate: Action = {
+        type: 'cage'
+      }
+
+      before(() => {
+        dispatch = sinon.stub()
+        getState = sinon.stub().returns(stubState)
+        hb = createHeartbeat<TestState>(ms, dispatch, (state: TestState, action: any) => {
+          return action.type !== state.nic
+        }, false)
+        actionHandler = hb({dispatch, getState})(next)
+      })
+
+      afterEach(() => hb.flush())
+
+      describe('When an action is handled that satisfies the predicate', () => {
+
+        before(() => actionHandler(stubActionSatisfiesPredicate))
+
+        describe('Then the action', () => {
+
+          it('should be collated into the pending actions', () => {
+            expect(hb.stethescope()[0].action).to.be.deep.equal(stubActionSatisfiesPredicate)
+          })
+
+        })
+
+      })
+
+      describe('When an action is handled that fails the predicate', () => {
+
+        before(() => actionHandler(stubActionFailsPredicate))
+
+        describe('Then the action', () => {
+
+          it('should not be collated into the pending actions', () => {
+            expect(hb.stethescope()).to.be.empty
           })
 
         })
