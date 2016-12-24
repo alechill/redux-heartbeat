@@ -9,7 +9,7 @@
                    \/                 \/                 \/
 
 ```
-[![Build Status](https://tra|vis-ci.org/alechill/redux-heartbeat.svg?branch=master)](https://travis-ci.org/alechill/redux-heartbeat) [![npm version](https://badge.fury.io/js/redux-heartbeat.svg)](https://badge.fury.io/js/redux-heartbeat)
+[![Build Status](https://travis-ci.org/alechill/redux-heartbeat.svg?branch=master)](https://travis-ci.org/alechill/redux-heartbeat) [![npm version](https://badge.fury.io/js/redux-heartbeat.svg)](https://badge.fury.io/js/redux-heartbeat)
 
 A middleware for Redux providing a heartbeat that contains batched log of actions occurring between each beat.
 
