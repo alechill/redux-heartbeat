@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/alechill/redux-heartbeat.git"
   },
-  "main": "dist/src/index.js.js",
+  "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
   "scripts": {
     "prepublish": "npm run test",
