@@ -40,7 +40,7 @@ const store = createStore(
 )
 ```
 
-This will cause an FSA compliant action to be dispatched each time the heartbeat duration has passed (default is 30seconds, but can be overridden). The heartbeat action will have the following shape...
+This will cause an FSA compliant action to be dispatched each time the heartbeat duration has passed (default is 30 seconds, but can be overridden). The heartbeat action will have the following shape...
 
 ```js
 {
@@ -96,7 +96,7 @@ If you have more than just a trivial application then you will want greater cont
 At initialisation you have certain defaults that can be overridden...
 
 ```ts
-createHeartbeat<S>(ms: number = 60000,
+createHeartbeat<S>(ms: number = 30000,
                    dispatch?: Dispatch<S>,
                    predicate: HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction): boolean => true,
                    autostart: boolean = true): HeartbeatMiddleware

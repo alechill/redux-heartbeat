@@ -41,7 +41,7 @@ export interface HeartbeatAPI {
 // Heartbeat actions themselves are always ignored, so no need to filter them out in a custom predicate
 export type HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction) => boolean
 
-export function createHeartbeat<S>(ms: number = 60000,
+export function createHeartbeat<S>(ms: number = 30000,
                              dispatch?: Dispatch<S>,
                              predicate: HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction): boolean => true,
                              autostart: boolean = true): HeartbeatMiddleware {

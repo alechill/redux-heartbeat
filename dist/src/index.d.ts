@@ -1,4 +1,3 @@
-/// <reference types="redux" />
 import { Action, Dispatch, Middleware } from 'redux';
 export interface NonHeartbeatAction extends Action {
     [extraProp: string]: any;
