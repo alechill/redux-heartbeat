@@ -109,14 +109,9 @@ You can override the default duration in milliseconds
 createHeartbeat(10000)
 ```
 
-Override dispatch, perhaps passing a thunk to handle the heartbeat action itself...
+Eagerly pass in dispatch. Heartbeat uses dispatch to publish its collated actions. Dispatch is automatically found when the first action (of any type) is passed through the middleware. Therefore the heartbeat cannot dispatch its own collated actions until at least one other action has occurred. This is usually not going to be a problem, but can be worked around by eagerly passing in dispatch at creation time
 ```js
-createHeartbeat(null,
-  (action) => {
-    if (action.type === HEARTBEAT_ACTION_TYPE) myAwesomeHeartbeatService.send(action.payload)
-    return dispatch(action)
-  }
-})
+createHeartbeat(null, store.dispatch})
 ```
 
 Defining a predicate function to determine if an action should be collated in the heartbeat, useful to filter out noise. This gets passed the state and the action, so you can cross reference anything in state, or simply filter out certain uninteresting actions.
@@ -189,7 +184,7 @@ myLogoutHandler() {
 
 Redux-heartbeat is written in Typescript, and only has dependencies on redux types. Its own typings are available via the npm package
 
-It is compiled down to ES6 - if you need support for lower versions please use babel in your own build to do so
+It is compiled down to ES5 in the distribution
 
 ##License
 MIT

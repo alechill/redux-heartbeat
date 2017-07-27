@@ -1,7 +1,4 @@
 import { Action, Dispatch, Middleware } from 'redux';
-export interface NonHeartbeatAction extends Action {
-    [extraProp: string]: any;
-}
 export interface HeartbeatMeta extends Timestamped {
     name: string;
 }
@@ -9,7 +6,7 @@ export interface Timestamped {
     timestamp: number;
 }
 export interface TimestampedAction extends Timestamped {
-    action: NonHeartbeatAction;
+    action: Action;
 }
 export declare type TimestampedActions = TimestampedAction[];
 export interface HeartbeatAction extends Action {
@@ -27,6 +24,6 @@ export interface HeartbeatAPI {
     flush(): TimestampedActions;
     stethescope(): TimestampedActions;
 }
-export declare type HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction) => boolean;
+export declare type HeartbeatPredicate<S> = (state: S, action: Action) => boolean;
 export declare function createHeartbeat<S>(ms?: number, dispatch?: Dispatch<S>, predicate?: HeartbeatPredicate<S>, autostart?: boolean, name?: string): HeartbeatMiddleware;
 export default createHeartbeat;

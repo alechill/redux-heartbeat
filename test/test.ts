@@ -115,7 +115,7 @@ describe('Redux heartbeat', () => {
     after(teardownHeartbeat)
 
     it('should start collating actions with timestamp', () => {
-      const collated : TimestampedActions = hb.stethescope()
+      const collated: TimestampedActions = hb.stethescope()
       expect(collated).to.have.length(1)
       expect(collated[0].timestamp).to.be.a('number')
       expect(collated[0].action).to.be.equal(stubAction)
