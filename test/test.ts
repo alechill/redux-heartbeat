@@ -1,9 +1,18 @@
 import {expect} from 'chai'
 import * as mocha from 'mocha'
+import {
+  Action,
+  Dispatch
+} from 'redux'
 import * as sinon from 'sinon'
-import {Action, Dispatch} from 'redux'
-import {createHeartbeat, HeartbeatMiddleware, TimestampedActions, HEARTBEAT_ACTION_TYPE,
-        HeartbeatAction} from '../src/index'
+import {
+  createHeartbeat,
+  DEFAULT_HEATBEAT_NAME,
+  HEARTBEAT_ACTION_TYPE,
+  HeartbeatAction,
+  HeartbeatMiddleware,
+  TimestampedActions
+} from '../src/index'
 
 type Handler<S> = (next: Dispatch<S>) => Dispatch<S>
 
@@ -138,6 +147,11 @@ describe('Redux heartbeat', () => {
         it('should have the timestamp that the heartbeat occurred at in the meta', () => {
           const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
           expect(dispatchedAction.meta.timestamp).to.be.equal(ms)
+        })
+
+        it('should have the heartbeat name in the meta', () => {
+          const dispatchedAction: HeartbeatAction = dispatch.getCall(0).args[0]
+          expect(dispatchedAction.meta.name).to.be.equal(DEFAULT_HEATBEAT_NAME)
         })
 
       })
@@ -331,7 +345,7 @@ describe('Redux heartbeat', () => {
             describe('When the collated actions list is emptied via `flush`', () => {
 
               before(() => hb.flush())
-              
+
               describe('Then the collated actions list', () => {
 
                 it('should have been empty', () => {

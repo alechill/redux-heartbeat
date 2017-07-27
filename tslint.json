@@ -1,3 +1,10 @@
 {
-  "extends": ["tslint:latest"]
+  "extends": ["tslint:latest"],
+  "rules": {
+    "quotemark": [true, "single", "avoid-escape"],
+    "interface-name": [true, "never-prefix"],
+    "semicolon": [true, "never"],
+    "curly": [true, "ignore-same-line"],
+    "trailing-comma": [true, {"multiline": "never", "singleline": "never"}]
+  }
 }

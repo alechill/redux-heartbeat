@@ -1,11 +1,11 @@
-```      
-                                 ____    ____  
+```
+                                 ____    ____
               ____    ____      /    \  /    \      ____    ____
              /    \  /    \    |      \/      |    /    \  /    \
             |      \/      |   |              |   |      \/      |
              \            /     \            /     \            /
                \        /         \        /         \        /
-                 \    /             \    /             \    /  
+                 \    /             \    /             \    /
                    \/                 \/                 \/
 
 ```
@@ -50,10 +50,11 @@ This will cause an FSA compliant action to be dispatched each time the heartbeat
       timestamp: 1234567890,
       action: { type: 'your arbitrary action' }
     },
-    // more arbitrary actions...  
+    // more arbitrary actions...
   ],
   meta: {
-    timestamp: 1234567890
+    timestamp: 1234567890,
+    name: 'heartbeat'
   }
 }
 ```
@@ -99,7 +100,8 @@ At initialisation you have certain defaults that can be overridden...
 createHeartbeat<S>(ms: number = 30000,
                    dispatch?: Dispatch<S>,
                    predicate: HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction): boolean => true,
-                   autostart: boolean = true): HeartbeatMiddleware
+                   autostart: boolean = true): HeartbeatMiddleware,
+                   name: string = 'heartbeat'
 ```
 
 You can override the default duration in milliseconds
@@ -130,6 +132,11 @@ createHeartbeat(null, null,
 Deferring the autostart...
 ```js
 createHeartbeat(null, null, null, false)
+```
+
+Provide a name for the heartbeat, this will be added to the `meta` of each heartbeat action it produces, so you are able distinguish the originator if you have multiple heartbeats set up for different purposes...
+```js
+createHeartbeat(null, null, null, null, 'JustBeatIt')
 ```
 
 ####Complete control over heartbeat lifecycle

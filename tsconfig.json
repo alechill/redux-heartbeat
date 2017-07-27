@@ -17,7 +17,8 @@
     "strictNullChecks": true,
     "noEmitOnError": true,
     "pretty": true,
-    "removeComments": true
+    "removeComments": true,
+    "noStrictGenericChecks": true
   },
   "exclude": [
     "dist",
