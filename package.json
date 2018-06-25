@@ -9,6 +9,7 @@
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
   "scripts": {
+    "preversion": "npm run test",
     "prepublish": "npm run test",
     "compile": "tsc --project . --module commonjs",
     "pretest": "npm run compile",
