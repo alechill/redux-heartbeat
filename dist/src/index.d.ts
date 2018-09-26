@@ -1,4 +1,4 @@
-import { Action, Dispatch, Middleware } from 'redux';
+import { Action, AnyAction, Dispatch, Middleware } from 'redux';
 export interface HeartbeatMeta extends Timestamped {
     name: string;
 }
@@ -6,7 +6,7 @@ export interface Timestamped {
     timestamp: number;
 }
 export interface TimestampedAction extends Timestamped {
-    action: Action;
+    action: AnyAction;
 }
 export declare type TimestampedActions = TimestampedAction[];
 export interface HeartbeatAction extends Action {
