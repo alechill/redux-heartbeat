@@ -1,5 +1,6 @@
 import {
   Action,
+  AnyAction,
   Dispatch,
   Middleware,
   MiddlewareAPI
@@ -14,7 +15,7 @@ export interface Timestamped {
 }
 
 export interface TimestampedAction extends Timestamped {
-  action: Action
+  action: AnyAction
 }
 
 export type TimestampedActions = TimestampedAction[]
