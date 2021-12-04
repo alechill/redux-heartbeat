@@ -25,5 +25,6 @@ export interface HeartbeatAPI {
     stethescope(): TimestampedActions;
 }
 export declare type HeartbeatPredicate<S> = (state: S, action: Action) => boolean;
-export declare function createHeartbeat<S>(ms?: number, dispatch?: Dispatch<S>, predicate?: HeartbeatPredicate<S>, autostart?: boolean, name?: string): HeartbeatMiddleware;
+export declare type HeartbeatTransform<S> = (state: S, action: Action) => AnyAction;
+export declare function createHeartbeat<S>(ms?: number, dispatch?: Dispatch<S>, predicate?: HeartbeatPredicate<S>, autostart?: boolean, name?: string, transform?: HeartbeatTransform<S>): HeartbeatMiddleware;
 export default createHeartbeat;

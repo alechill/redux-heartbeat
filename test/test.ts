@@ -1,7 +1,9 @@
+import {HeartbeatTransform} from './../src/index';
 import {expect} from 'chai'
 import * as mocha from 'mocha'
 import {
   Action,
+  AnyAction,
   Dispatch
 } from 'redux'
 import * as sinon from 'sinon'
@@ -75,7 +77,7 @@ describe('Redux heartbeat', () => {
       expect(nextHandler.length).to.be.equal(1)
     })
 
-    describe('And the next middleware is composed', () => {
+    describe('When the next middleware is composed', () => {
 
       before(() => actionHandler = nextHandler(next))
 
@@ -84,7 +86,7 @@ describe('Redux heartbeat', () => {
         expect(actionHandler.length).to.be.equal(1)
       })
 
-      describe('And an action is handled', () => {
+      describe('When an action is handled', () => {
 
         it('should pass the action to next middleware', () => {
           const handledAction: Action = actionHandler(stubAction)
@@ -170,12 +172,12 @@ describe('Redux heartbeat', () => {
 
   // suite 3 - heartbeat lifecycle API /////////////////////////////////////////
 
-  describe('Given the heartbeat public API', () => {
+  describe('Heartbeat public API', () => {
 
     // need a ref to the actual action handler to test with actions
     let actionHandler: Dispatch<any>
 
-    describe('And given the heartbeat is started and an action is passed through middleware', () => {
+    describe('Given the heartbeat is started and an action is passed through middleware', () => {
 
       before(() => {
         setupHeartbeat()
@@ -296,7 +298,7 @@ describe('Redux heartbeat', () => {
 
     })
 
-    describe('And given the heartbeat is created', () => {
+    describe('Given the heartbeat is created', () => {
 
       before(() => {
         setupHeartbeat()
@@ -305,7 +307,7 @@ describe('Redux heartbeat', () => {
 
       after(teardownHeartbeat)
 
-      describe('When an action arbitrary properties is passed through middleware', () => {
+      describe('When an action with arbitrary properties is passed through middleware', () => {
 
         before(() => actionHandler(stubActionWithExtraProps))
 
@@ -364,7 +366,7 @@ describe('Redux heartbeat', () => {
 
     })
 
-    describe('And given the heartbeat is started with a predicate', () => {
+    describe('Given the heartbeat is started with a predicate', () => {
 
       interface TestState {
         nic: string
@@ -413,6 +415,55 @@ describe('Redux heartbeat', () => {
 
           it('should not be collated into the pending actions', () => {
             expect(hb.stethescope()).to.be.empty
+          })
+
+        })
+
+      })
+
+    })
+
+    describe('Given the heartbeat is started with a transform', () => {
+
+      interface TestState {
+        nic: string
+      }
+
+      const stubState: TestState = {
+        nic: 'cage'
+      }
+      const stubAction: Action = {
+        type: 'nic'
+      }
+      const stubActionTransformed: AnyAction = {
+        type: 'nic',
+        nic: 'cage'
+      }
+
+      const transform: HeartbeatTransform<TestState> = (state: TestState, action: Action) => {
+        return {
+          ...action,
+          ...state
+        }
+      }
+
+      before(() => {
+        dispatch = sinon.stub()
+        getState = sinon.stub().returns(stubState)
+        hb = createHeartbeat<TestState>(ms, dispatch, undefined, false, undefined, transform)
+        actionHandler = hb({dispatch, getState})(next)
+      })
+
+      afterEach(() => hb.flush())
+
+      describe('When an action is handled', () => {
+
+        before(() => actionHandler(stubAction))
+
+        describe('Then the action', () => {
+
+          it('should be transformed when collated into the pending actions', () => {
+            expect(hb.stethescope()[0].action).to.be.deep.equal(stubActionTransformed)
           })
 
         })
