@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createHeartbeat = exports.DEFAULT_HEATBEAT_NAME = exports.HEARTBEAT_ACTION_TYPE = void 0;
 exports.HEARTBEAT_ACTION_TYPE = '@@redux/heartbeat';
 exports.DEFAULT_HEATBEAT_NAME = 'heartbeat';
 function createHeartbeat(ms, dispatch, predicate, autostart, name, transform) {

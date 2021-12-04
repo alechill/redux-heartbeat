@@ -6,19 +6,12 @@
     "module": "commonjs",
     "target": "es5",
     "declaration": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitThis": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "allowUnreachableCode": false,
+    "strict": true,
+    "noStrictGenericChecks": true,
     "forceConsistentCasingInFileNames": true,
-    "strictNullChecks": true,
     "noEmitOnError": true,
     "pretty": true,
-    "removeComments": true,
-    "noStrictGenericChecks": true
+    "removeComments": true
   },
   "exclude": [
     "dist",
