@@ -27,7 +27,7 @@ npm install --save redux-heartbeat
 
 ###Basic usage
 
-In the simplest of cases you will want just set the heartbeat up with your store and leave it to happily beat away...
+In the simplest of cases you will want just set the heartbeat up within your store and leave it to happily beat away...
 
 ```js
 import { createStore, applyMiddleware } from 'redux'
@@ -97,11 +97,14 @@ If you have more than just a trivial application then you will want greater cont
 At initialisation you have certain defaults that can be overridden...
 
 ```ts
-createHeartbeat<S>(ms: number = 30000,
-                   dispatch?: Dispatch<S>,
-                   predicate: HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction): boolean => true,
-                   autostart: boolean = true): HeartbeatMiddleware,
-                   name: string = 'heartbeat'
+createHeartbeat<S>(
+  ms: number = 30000,
+  dispatch?: Dispatch<S>,
+  predicate: HeartbeatPredicate<S> = (state: S, action: NonHeartbeatAction): boolean => true,
+  autostart: boolean = true,
+  name: string = 'heartbeat',
+  transform: HeartbeatTransform<S> = transform: HeartbeatTransform<S> = (state: S, action: Action): AnyAction => action
+): HeartbeatMiddleware
 ```
 
 You can override the default duration in milliseconds
@@ -131,7 +134,20 @@ createHeartbeat(null, null, null, false)
 
 Provide a name for the heartbeat, this will be added to the `meta` of each heartbeat action it produces, so you are able distinguish the originator if you have multiple heartbeats set up for different purposes...
 ```js
-createHeartbeat(null, null, null, null, 'JustBeatIt')
+createHeartbeat(null, null, null, null, "Mom you're just jealous it's the Heartbeatstie Boys!")
+```
+
+Defining a transform function to alter the shape of the collated action, useful for redacting or augmenting data within the collated action. This gets passed the state and the action, so you can cross reference anything in state, or simply add/remove properties.
+
+N.B. For performance reasons heartbeat does not enforce immutability. It is therefore up to the developer to decide upon and enforce their own immutability within the transform. Beware that mutating the action will result in that mutated action being passed through subsequent middleware and reducers. It is recommended that the transofrmer builds and returns a new object, in which case the new object is collated, and the original action is forwarded through subsequent middleware and reducers.
+```js
+createHeartbeat(null, null, null, null,
+  (state, action) => ({
+    ...action
+    overriddenSensitiveData: '[REDACTED]',
+    augmentedData: state.someData,
+  })
+)
 ```
 
 ####Complete control over heartbeat lifecycle

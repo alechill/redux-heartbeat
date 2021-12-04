@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HEARTBEAT_ACTION_TYPE = '@@redux/heartbeat';
 exports.DEFAULT_HEATBEAT_NAME = 'heartbeat';
-function createHeartbeat(ms, dispatch, predicate, autostart, name) {
+function createHeartbeat(ms, dispatch, predicate, autostart, name, transform) {
     if (ms === void 0) { ms = 30000; }
     if (predicate === void 0) { predicate = function (state, action) { return true; }; }
     if (autostart === void 0) { autostart = true; }
     if (name === void 0) { name = exports.DEFAULT_HEATBEAT_NAME; }
+    if (transform === void 0) { transform = function (state, action) { return action; }; }
     var interval;
     var dispatcher = dispatch;
     var ventrical = [];
@@ -38,8 +39,11 @@ function createHeartbeat(ms, dispatch, predicate, autostart, name) {
             dispatcher = middlewareApi.dispatch;
         return function (next) {
             return function (action) {
-                if (action.type !== exports.HEARTBEAT_ACTION_TYPE && predicate(middlewareApi.getState(), action))
-                    add(action);
+                if (action.type !== exports.HEARTBEAT_ACTION_TYPE) {
+                    var state = middlewareApi.getState();
+                    if (predicate(state, action))
+                        add(transform(state, action));
+                }
                 return next(action);
             };
         };
