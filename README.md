@@ -17,15 +17,15 @@ Created for incrementally collecting usage data for driving analytics, contextua
 
 Redux-heartbeat makes no assumptions as to what you will be doing with the heartbeat's contents. It is itself dispatched as an ordinary redux action so you can handle it however you like... log it, send to server, store to disk, send to your 3rd party metrics service, mirror a user's session for support, whatever!
 
-## Installation
+# Installation
 
 ```
 npm install --save redux-heartbeat
 ```
 
-## Usage
+# Usage
 
-### Basic usage
+## Basic usage
 
 In the simplest of cases you will want just set the heartbeat up within your store and leave it to happily beat away...
 
@@ -88,11 +88,11 @@ export function* handleHeartbeat(heartbeatAction) {
 }
 ```
 
-### Advanced usage
+## Advanced usage
 
 If you have more than just a trivial application then you will want greater control over what the heartbeat is doing.
 
-#### Overriding default settings
+### Overriding default settings
 
 At initialisation you have certain defaults that can be overridden...
 
@@ -107,15 +107,21 @@ createHeartbeat<S>(
 ): HeartbeatMiddleware
 ```
 
+#### `ms`
+
 You can override the default duration in milliseconds
 ```js
 createHeartbeat(10000)
 ```
 
+#### `dispatch`
+
 Eagerly pass in dispatch. Heartbeat uses dispatch to publish its collated actions. Dispatch is automatically found when the first action (of any type) is passed through the middleware. Therefore the heartbeat cannot dispatch its own collated actions until at least one other action has occurred. This is usually not going to be a problem, but can be worked around by eagerly passing in dispatch at creation time
 ```js
 createHeartbeat(null, store.dispatch})
 ```
+
+#### `predicate`
 
 Defining a predicate function to determine if an action should be collated in the heartbeat, useful to filter out noise. This gets passed the state and the action, so you can cross reference anything in state, or simply filter out certain uninteresting actions.
 If the predicate returns `true` it will be collated, if it returns `false` it will be ignored by the heartbeat (by default every action will be collated).
@@ -127,15 +133,21 @@ createHeartbeat(null, null,
 )
 ```
 
+#### `autostart`
+
 Deferring the autostart...
 ```js
 createHeartbeat(null, null, null, false)
 ```
 
+#### `name`
+
 Provide a name for the heartbeat, this will be added to the `meta` of each heartbeat action it produces, so you are able distinguish the originator if you have multiple heartbeats set up for different purposes...
 ```js
 createHeartbeat(null, null, null, null, "Mom you're just jealous it's the Heartbeatstie Boys!")
 ```
+
+#### `transform`
 
 Defining a transform function to alter the shape of the collated action, useful for redacting or augmenting data within the collated action. This gets passed the state and the action, so you can cross reference anything in state, or simply add/remove properties.
 
@@ -150,7 +162,7 @@ createHeartbeat(null, null, null, null,
 )
 ```
 
-#### Complete control over heartbeat lifecycle
+### Complete control over heartbeat lifecycle
 
 In a real world app you will often need further control over the complete lifecycle of the heartbeat.
 
@@ -196,11 +208,11 @@ myLogoutHandler() {
 }
 ```
 
-## Language
+# Language
 
 Redux-heartbeat is written in Typescript, and only has dependencies on redux types. Its own typings are available via the npm package
 
 It is compiled down to ES5 in the distribution
 
-## License
+# License
 MIT
