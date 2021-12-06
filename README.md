@@ -17,15 +17,15 @@ Created for incrementally collecting usage data for driving analytics, contextua
 
 Redux-heartbeat makes no assumptions as to what you will be doing with the heartbeat's contents. It is itself dispatched as an ordinary redux action so you can handle it however you like... log it, send to server, store to disk, send to your 3rd party metrics service, mirror a user's session for support, whatever!
 
-##Installation
+## Installation
 
 ```
 npm install --save redux-heartbeat
 ```
 
-##Usage
+## Usage
 
-###Basic usage
+### Basic usage
 
 In the simplest of cases you will want just set the heartbeat up within your store and leave it to happily beat away...
 
@@ -88,7 +88,7 @@ export function* handleHeartbeat(heartbeatAction) {
 }
 ```
 
-###Advanced usage
+### Advanced usage
 
 If you have more than just a trivial application then you will want greater control over what the heartbeat is doing.
 
@@ -150,7 +150,7 @@ createHeartbeat(null, null, null, null,
 )
 ```
 
-####Complete control over heartbeat lifecycle
+#### Complete control over heartbeat lifecycle
 
 In a real world app you will often need further control over the complete lifecycle of the heartbeat.
 
@@ -202,5 +202,5 @@ Redux-heartbeat is written in Typescript, and only has dependencies on redux typ
 
 It is compiled down to ES5 in the distribution
 
-##License
+## License
 MIT
