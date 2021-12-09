@@ -1,8 +1,0 @@
-test
-src
-.vscode
-.travis.yml
-tsconfig.json
-yarn.lock
-.babelrc
-tslint.json
