@@ -1,10 +1,6 @@
 .DS_Store
-**/node_modules
-typings
+node_modules
 coverage
-dist/test
-results
-**/npm-debug.log
-tmp
-*.js
-!dist/src/index.js
+dist
+*.log
+*.tgz

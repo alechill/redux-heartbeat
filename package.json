@@ -7,12 +7,15 @@
     "url": "https://github.com/alechill/redux-heartbeat.git"
   },
   "main": "dist/src/index.js",
-  "typings": "dist/src/index.d.ts",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/src"
+  ],
   "scripts": {
-    "preversion": "npm run test",
-    "prepublish": "npm run test",
+    "preversion": "yarn test",
+    "prepublish": "yarn test",
     "compile": "tsc --project . --module commonjs",
-    "pretest": "npm run compile",
+    "pretest": "yarn compile",
     "test": "mocha --require @babel/register ./dist/test/test.js"
   },
   "keywords": [
