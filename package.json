@@ -14,8 +14,8 @@
   "scripts": {
     "preversion": "yarn test",
     "prepublish": "yarn test",
-    "compile": "tsc --project . --module commonjs",
-    "pretest": "yarn compile",
+    "build": "tsc --project . --module commonjs",
+    "pretest": "yarn build",
     "test": "mocha --require @babel/register ./dist/test/test.js"
   },
   "keywords": [
