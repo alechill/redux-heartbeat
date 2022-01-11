@@ -89,19 +89,18 @@ export function createHeartbeat<S>(ms: number = 30000,
   }
   const api: HeartbeatAPI = {start, flush, beat, pause, stop, stethescope}
   const middleware: Middleware = (middlewareApi: MiddlewareAPI<S>) => {
-      if (!dispatcher) dispatcher = middlewareApi.dispatch // cache dispatch so can be used to send the collated action
-      return (next: Dispatch<S>): Dispatch<S> => {
-        return (action: Action) => {
-          if (action.type !== HEARTBEAT_ACTION_TYPE) {
-            const state = middlewareApi.getState()
-            if (predicate(state, action)) add(transform(state, action))
-          }
-          return next(action)
+    if (!dispatcher) dispatcher = middlewareApi.dispatch // cache dispatch so can be used to send the collated action
+    return (next: Dispatch<S>): Dispatch<S> => {
+      return (action: Action) => {
+        if (action.type !== HEARTBEAT_ACTION_TYPE) {
+          const state = middlewareApi.getState()
+          if (predicate(state, action)) add(transform(state, action))
         }
+        return next(action)
       }
     }
-  // FIXME - This is nasty... getting Object.assign working may be cleaner
-  const heartbeatMiddleware: any = middleware
+  }
+  const heartbeatMiddleware = middleware as HeartbeatMiddleware
   heartbeatMiddleware.start = api.start
   heartbeatMiddleware.flush = api.flush
   heartbeatMiddleware.beat = api.beat
@@ -109,7 +108,7 @@ export function createHeartbeat<S>(ms: number = 30000,
   heartbeatMiddleware.stop = api.stop
   heartbeatMiddleware.stethescope = api.stethescope
   if (autostart) start()
-  return heartbeatMiddleware as HeartbeatMiddleware
+  return heartbeatMiddleware
 }
 
 export default createHeartbeat
